@@ -1,0 +1,12 @@
+spring:
+  datasource:
+    password: postgres
+    username: postgres
+    driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
+    url: jdbc:tc:postgresql:11.12://test
+  data:
+    jdbc:
+      dialect: postgresql
+
+  flyway:
+    locations: classpath:db/
