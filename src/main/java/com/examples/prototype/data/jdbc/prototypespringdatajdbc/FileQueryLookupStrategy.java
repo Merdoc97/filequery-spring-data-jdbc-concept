@@ -65,8 +65,6 @@ public class FileQueryLookupStrategy implements QueryLookupStrategy {
         FileQuery fileQuery = AnnotatedElementUtils.findMergedAnnotation(method, FileQuery.class);
 
         if (fileQuery != null) {
-
-            // 1. путь к SQL-файлу
             String filePath = fileQuery.file();
             if (filePath.isEmpty()) {
                 throw new IllegalStateException("@FileQuery must define 'file' attribute");
@@ -89,9 +87,7 @@ public class FileQueryLookupStrategy implements QueryLookupStrategy {
             );
         }
 
-        // fallback
-        return delegate.orElseThrow(() ->
-                                            new IllegalStateException("No QueryLookupStrategy available for method " + method.getName()))
+        return delegate.orElseThrow(() -> new IllegalStateException("No QueryLookupStrategy available for method " + method.getName()))
                        .resolveQuery(method, metadata, factory, namedQueries);
     }
 
