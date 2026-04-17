@@ -1,8 +1,7 @@
 package com.examples.prototype.data.jdbc.prototypespringdatajdbc;
 
-import com.examples.prototype.data.jdbc.prototypespringdatajdbc.annotation.FileQuery;
+import com.examples.prototype.data.jdbc.prototypespringdatajdbc.annotation.QueryFrom;
 import com.examples.prototype.data.jdbc.prototypespringdatajdbc.query.FileBasedJdbcQuery;
-import org.springframework.context.ApplicationContext;
 import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.core.io.FileSystemResourceLoader;
 import org.springframework.core.io.Resource;
@@ -24,7 +23,7 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.Optional;
 
-public class FileQueryLookupStrategy implements QueryLookupStrategy {
+public class QueryFromLookupStrategy implements QueryLookupStrategy {
 
     private final Optional<QueryLookupStrategy> delegate;
     private final ResourceLoader loader = new FileSystemResourceLoader();
@@ -34,16 +33,15 @@ public class FileQueryLookupStrategy implements QueryLookupStrategy {
     private final RowMapperFactory rowMapperFactory;
     private final JdbcConverter converter;
     private final ValueExpressionDelegate delegateExpr;
-    private final ApplicationContext context;
 
-    public FileQueryLookupStrategy(
+
+    public QueryFromLookupStrategy(
             Optional<QueryLookupStrategy> delegate,
             MappingContext<? extends RelationalPersistentEntity<?>, ? extends RelationalPersistentProperty> mappingContext,
             NamedParameterJdbcOperations operations,
             RowMapperFactory rowMapperFactory,
             JdbcConverter converter,
-            ValueExpressionDelegate delegateExpr,
-            ApplicationContext context
+            ValueExpressionDelegate delegateExpr
     ) {
         this.delegate = delegate;
         this.mappingContext = mappingContext;
@@ -51,7 +49,6 @@ public class FileQueryLookupStrategy implements QueryLookupStrategy {
         this.rowMapperFactory = rowMapperFactory;
         this.converter = converter;
         this.delegateExpr = delegateExpr;
-        this.context = context;
     }
 
     @Override
@@ -62,17 +59,15 @@ public class FileQueryLookupStrategy implements QueryLookupStrategy {
             NamedQueries namedQueries
     ) {
 
-        FileQuery fileQuery = AnnotatedElementUtils.findMergedAnnotation(method, FileQuery.class);
+        QueryFrom queryFrom = AnnotatedElementUtils.findMergedAnnotation(method, QueryFrom.class);
 
-        if (fileQuery != null) {
-            String filePath = fileQuery.file();
+        if (queryFrom != null) {
+            String filePath = queryFrom.value();
             if (filePath.isEmpty()) {
-                throw new IllegalStateException("@FileQuery must define 'file' attribute");
+                throw new IllegalStateException("@FileQuery must define 'value' attribute");
             }
 
             String sql = loadSql(filePath);
-
-
             return new FileBasedJdbcQuery(
                     sql,
                     method,

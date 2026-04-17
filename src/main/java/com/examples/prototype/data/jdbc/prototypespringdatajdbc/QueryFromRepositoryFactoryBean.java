@@ -10,19 +10,19 @@ import org.springframework.data.repository.core.support.RepositoryFactorySupport
 
 import java.io.Serializable;
 
-public class FileQueryRepositoryFactoryBean<T extends Repository<S, ID>, S, ID extends Serializable>
+public class QueryFromRepositoryFactoryBean<T extends Repository<S, ID>, S, ID extends Serializable>
         extends JdbcRepositoryFactoryBean<T, S, ID>
         implements ApplicationContextAware {
     private ApplicationContext applicationContext;
 
-    public FileQueryRepositoryFactoryBean(Class<? extends T> repositoryInterface) {
+    public QueryFromRepositoryFactoryBean(Class<? extends T> repositoryInterface) {
         super(repositoryInterface);
     }
 
     @Override
     protected RepositoryFactorySupport doCreateRepositoryFactory() {
         JdbcAggregateOperations operations = applicationContext.getBean(JdbcAggregateOperations.class);
-        var factory = new FileQueryRepositoryFactory(operations, applicationContext);
+        var factory = new QueryFromRepositoryFactory(operations, applicationContext);
         return factory;
     }
 
