@@ -1,10 +1,17 @@
 package com.examples.prototype.data.jdbc.prototypespringdatajdbc;
 
+import com.examples.prototype.data.jdbc.prototypespringdatajdbc.model.Address;
+import com.examples.prototype.data.jdbc.prototypespringdatajdbc.model.User;
+import com.examples.prototype.data.jdbc.prototypespringdatajdbc.model.UserWithAddress;
 import com.examples.prototype.data.jdbc.prototypespringdatajdbc.repository.UserRepository;
 import com.examples.prototype.data.jdbc.prototypespringdatajdbc.repository.UserWithAddressRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -15,6 +22,17 @@ class QueryFromTests {
     private UserRepository userRepository;
     @Autowired
     private UserWithAddressRepository withAddressRepository;
+    @Autowired
+    private NamedParameterJdbcTemplate jdbcTemplate;
+
+    private String sql = """
+            select *
+            from users
+            where users.id = :userId;
+            """;
+    private String sqlAddresses = """
+            select * from addresses where user_id = :userId
+            """;
 
     @Test
     void getAll() {
@@ -65,6 +83,33 @@ class QueryFromTests {
         assertThat(result).isNotEmpty();
         assertThat(result.get().getAddresses()).hasSize(1);
         var address = result.get().getAddresses().get(0);
+        assertThat(address).isNotNull();
+        assertThat(address.getId()).isNotNull();
+        assertThat(address.getCity()).isNotNull();
+        assertThat(address.getCountry()).isNotNull();
+        assertThat(address.getState()).isNotNull();
+        assertThat(address.getZip()).isNotNull();
+        assertThat(address.getUserId()).isEqualTo(2);
+    }
+
+    @Test
+    void testViaAggregateOperations() {
+        var result = jdbcTemplate.queryForObject(sql,
+                Map.of("userId", 2),
+                new BeanPropertyRowMapper<>(User.class));
+        var addresses = jdbcTemplate.query(sqlAddresses,
+                Map.of("userId", 2),
+                new BeanPropertyRowMapper<>(Address.class));
+        var userWithAddress = UserWithAddress.builder()
+                                      .addresses(addresses)
+                                      .id(result.getId())
+                                      .email(result.getEmail())
+                                      .userName(result.getUserName())
+                                      .build();
+
+        assertThat(userWithAddress).isNotNull();
+        assertThat(userWithAddress.getAddresses()).hasSize(1);
+        var address = userWithAddress.getAddresses().get(0);
         assertThat(address).isNotNull();
         assertThat(address.getId()).isNotNull();
         assertThat(address.getCity()).isNotNull();
