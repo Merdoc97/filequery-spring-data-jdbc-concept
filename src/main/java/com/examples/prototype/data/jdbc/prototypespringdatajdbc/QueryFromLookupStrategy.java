@@ -7,7 +7,8 @@ import org.springframework.core.io.FileSystemResourceLoader;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.data.jdbc.core.convert.JdbcConverter;
-import org.springframework.data.jdbc.repository.query.RowMapperFactory;
+
+import org.springframework.data.jdbc.repository.query.AbstractJdbcQuery;
 import org.springframework.data.mapping.context.MappingContext;
 import org.springframework.data.projection.ProjectionFactory;
 import org.springframework.data.relational.core.mapping.RelationalPersistentEntity;
@@ -30,7 +31,7 @@ public class QueryFromLookupStrategy implements QueryLookupStrategy {
 
     private final MappingContext<? extends RelationalPersistentEntity<?>, ? extends RelationalPersistentProperty> mappingContext;
     private final NamedParameterJdbcOperations operations;
-    private final RowMapperFactory rowMapperFactory;
+    private final AbstractJdbcQuery.RowMapperFactory rowMapperFactory;
     private final JdbcConverter converter;
     private final ValueExpressionDelegate delegateExpr;
 
@@ -39,7 +40,7 @@ public class QueryFromLookupStrategy implements QueryLookupStrategy {
             Optional<QueryLookupStrategy> delegate,
             MappingContext<? extends RelationalPersistentEntity<?>, ? extends RelationalPersistentProperty> mappingContext,
             NamedParameterJdbcOperations operations,
-            RowMapperFactory rowMapperFactory,
+            AbstractJdbcQuery.RowMapperFactory rowMapperFactory,
             JdbcConverter converter,
             ValueExpressionDelegate delegateExpr
     ) {

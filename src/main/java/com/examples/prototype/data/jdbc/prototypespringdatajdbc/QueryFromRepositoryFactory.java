@@ -1,13 +1,11 @@
 package com.examples.prototype.data.jdbc.prototypespringdatajdbc;
 
-import org.jspecify.annotations.Nullable;
+
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.data.jdbc.core.JdbcAggregateOperations;
-import org.springframework.data.jdbc.core.convert.QueryMappingConfiguration;
-import org.springframework.data.jdbc.repository.query.RowMapperFactory;
-import org.springframework.data.jdbc.repository.support.BeanFactoryAwareRowMapperFactory;
-import org.springframework.data.jdbc.repository.support.DefaultRowMapperFactory;
+import org.springframework.data.jdbc.repository.QueryMappingConfiguration;
+import org.springframework.data.jdbc.repository.query.AbstractJdbcQuery;
 import org.springframework.data.jdbc.repository.support.JdbcRepositoryFactory;
 import org.springframework.data.repository.query.QueryLookupStrategy;
 import org.springframework.data.repository.query.ValueExpressionDelegate;
@@ -18,7 +16,7 @@ public class QueryFromRepositoryFactory extends JdbcRepositoryFactory {
 
     private final ApplicationContext context;
     private final JdbcAggregateOperations operations;
-    private @Nullable BeanFactory beanFactory;
+    private  BeanFactory beanFactory;
     private QueryMappingConfiguration queryMappingConfiguration;
 
     public QueryFromRepositoryFactory(JdbcAggregateOperations operations, ApplicationContext context) {
@@ -29,8 +27,8 @@ public class QueryFromRepositoryFactory extends JdbcRepositoryFactory {
     }
 
     @Override
-    protected Optional<QueryLookupStrategy> getQueryLookupStrategy(QueryLookupStrategy.@Nullable Key key, ValueExpressionDelegate valueExpressionDelegate) {
-        RowMapperFactory rowMapperFactory = (RowMapperFactory)(this.beanFactory != null ? new BeanFactoryAwareRowMapperFactory(this.beanFactory, this.operations, this.queryMappingConfiguration) : new DefaultRowMapperFactory(this.operations, this.queryMappingConfiguration));
+    protected Optional<QueryLookupStrategy> getQueryLookupStrategy(QueryLookupStrategy.Key key, ValueExpressionDelegate valueExpressionDelegate) {
+        AbstractJdbcQuery.RowMapperFactory rowMapperFactory = (AbstractJdbcQuery.RowMapperFactory)(this.beanFactory != null ? new BeanFactoryAwareRowMapperFactory(this.beanFactory, this.operations, this.queryMappingConfiguration) : new DefaultRowMapperFactory(this.operations, this.queryMappingConfiguration));
         Optional<QueryLookupStrategy> original = super.getQueryLookupStrategy(key,valueExpressionDelegate);
         return Optional.of(new QueryFromLookupStrategy(
                 original,
