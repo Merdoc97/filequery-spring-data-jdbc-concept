@@ -65,7 +65,7 @@ public class QueryFromLookupStrategy implements QueryLookupStrategy {
         if (queryFrom != null) {
             String filePath = queryFrom.value();
             if (filePath.isEmpty()) {
-                throw new IllegalStateException("@FileQuery must define 'value' attribute");
+                throw new IllegalStateException("@QueryFrom must define 'value' attribute");
             }
 
             String sql = loadSql(filePath);

@@ -3,10 +3,14 @@ package com.examples.prototype.data.jdbc.prototypespringdatajdbc;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.data.jdbc.core.JdbcAggregateOperations;
+import org.springframework.data.jdbc.core.convert.DataAccessStrategy;
+import org.springframework.data.jdbc.core.convert.JdbcConverter;
 import org.springframework.data.jdbc.repository.support.JdbcRepositoryFactoryBean;
+import org.springframework.data.relational.core.dialect.Dialect;
+import org.springframework.data.relational.core.mapping.RelationalMappingContext;
 import org.springframework.data.repository.Repository;
 import org.springframework.data.repository.core.support.RepositoryFactorySupport;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 
 import java.io.Serializable;
 
@@ -21,8 +25,13 @@ public class QueryFromRepositoryFactoryBean<T extends Repository<S, ID>, S, ID e
 
     @Override
     protected RepositoryFactorySupport doCreateRepositoryFactory() {
-        JdbcAggregateOperations operations = applicationContext.getBean(JdbcAggregateOperations.class);
-        var factory = new QueryFromRepositoryFactory(operations, applicationContext);
+        NamedParameterJdbcOperations operations = applicationContext.getBean(NamedParameterJdbcOperations.class);
+        RelationalMappingContext relationalMappingContext = applicationContext.getBean(RelationalMappingContext.class);
+        JdbcConverter converter = applicationContext.getBean(JdbcConverter.class);
+        Dialect dialect = applicationContext.getBean(Dialect.class);
+        DataAccessStrategy dataAccessStrategy = applicationContext.getBean(DataAccessStrategy.class);
+        var factory = new QueryFromRepositoryFactory(dataAccessStrategy, relationalMappingContext, converter,
+                dialect, operations, applicationContext);
         return factory;
     }
 

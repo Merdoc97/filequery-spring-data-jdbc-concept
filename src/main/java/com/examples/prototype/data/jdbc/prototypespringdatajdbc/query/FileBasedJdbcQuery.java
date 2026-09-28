@@ -2,7 +2,7 @@ package com.examples.prototype.data.jdbc.prototypespringdatajdbc.query;
 
 import org.springframework.data.jdbc.core.convert.JdbcConverter;
 import org.springframework.data.jdbc.repository.query.JdbcQueryMethod;
-import org.springframework.data.jdbc.repository.query.RowMapperFactory;
+
 import org.springframework.data.jdbc.repository.query.StringBasedJdbcQuery;
 import org.springframework.data.mapping.context.MappingContext;
 import org.springframework.data.projection.ProjectionFactory;
