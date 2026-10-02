@@ -7,13 +7,14 @@ import org.springframework.data.jdbc.repository.query.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
-@Transactional(readOnly = true)
 public interface UserRepository extends CrudRepository<User, Long> {
+
+    List<User> findAllByEmail(String email);
 
     @QueryFrom(value = "sql/find-all.sql")
     List<User> getAll();
@@ -22,12 +23,12 @@ public interface UserRepository extends CrudRepository<User, Long> {
     List<UserProjection> projectionTest();
 
     @QueryFrom(value = "sql/find-by-email.sql")
-    List<User> findByTest(@Param("email")String email);
+    List<User> findByTest(@Param("email") String email);
 
-    List<User>findAllByEmail(String email);
 
     @Query("select * from users where email=:email")
-    List<User>findAllByEmailQuery(@Param("email") String email);
+    List<User> findAllByEmailQuery(@Param("email") String email);
 
+    Optional<User>findByEmail(String email);
 
 }

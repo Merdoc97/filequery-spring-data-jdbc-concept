@@ -33,7 +33,6 @@ class QueryFromTests {
     private String sqlAddresses = """
             select * from addresses where user_id = :userId
             """;
-
     @Test
     void getAll() {
         var users = userRepository.getAll();
@@ -101,11 +100,11 @@ class QueryFromTests {
                 Map.of("userId", 2),
                 new BeanPropertyRowMapper<>(Address.class));
         var userWithAddress = UserWithAddress.builder()
-                                      .addresses(addresses)
-                                      .id(result.getId())
-                                      .email(result.getEmail())
-                                      .userName(result.getUserName())
-                                      .build();
+                .addresses(addresses)
+                .id(result.getId())
+                .email(result.getEmail())
+                .userName(result.getUserName())
+                .build();
 
         assertThat(userWithAddress).isNotNull();
         assertThat(userWithAddress.getAddresses()).hasSize(1);
@@ -117,5 +116,38 @@ class QueryFromTests {
         assertThat(address.getState()).isNotNull();
         assertThat(address.getZip()).isNotNull();
         assertThat(address.getUserId()).isEqualTo(2);
+    }
+
+    @Test
+    void testInsert() {
+        var user = User.builder()
+                .email("testinsert@gmail.com")
+                .userName("testInsert")
+                .build();
+        userRepository.save(user);
+        var userInDb = userRepository.findAllByEmail("testinsert@gmail.com");
+        assertThat(userInDb).isNotNull();
+        assertThat(userInDb).isNotEmpty();
+        assertThat(user.getEmail()).isEqualTo(userInDb.get(0).getEmail());
+        assertThat(user.getUserName()).isEqualTo(userInDb.get(0).getUserName());
+        var userForUpdate=userInDb.get(0);
+        userForUpdate.setEmail("updated_testinsert@gmail.com");
+        userRepository.save(userForUpdate);
+        var userInDbAfterUpdate = userRepository.findAllByEmail("updated_testinsert@gmail.com");
+        assertThat(userInDbAfterUpdate).isNotNull();
+        assertThat(userInDbAfterUpdate).isNotEmpty();
+        assertThat(userForUpdate.getEmail()).isEqualTo(userInDbAfterUpdate.get(0).getEmail());
+        assertThat(userForUpdate.getUserName()).isEqualTo(userInDbAfterUpdate.get(0).getUserName());
+        userRepository.deleteById(userInDbAfterUpdate.get(0).getId());
+        var userAfterDelete = userRepository.findAllByEmail("updated_testinsert@gmail.com");
+        assertThat(userAfterDelete).isEmpty();
+    }
+
+    @Test
+    void testOptional(){
+        var user = userRepository.findByEmail("user1@email.com");
+        assertThat(user).isPresent();
+        var notPresent = userRepository.findByEmail("notPresentuser1@email.com");
+        assertThat(notPresent).isNotPresent();
     }
 }

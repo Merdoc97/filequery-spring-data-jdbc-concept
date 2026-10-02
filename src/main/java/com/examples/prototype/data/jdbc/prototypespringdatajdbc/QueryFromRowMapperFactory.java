@@ -19,7 +19,7 @@ import org.springframework.lang.Nullable;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class BeanFactoryRowMapperFactory implements AbstractJdbcQuery.RowMapperFactory {
+public class QueryFromRowMapperFactory implements AbstractJdbcQuery.RowMapperFactory {
 
     private final @Nullable BeanFactory beanFactory;
     private final JdbcConverter converter;
@@ -28,12 +28,12 @@ public class BeanFactoryRowMapperFactory implements AbstractJdbcQuery.RowMapperF
     private final RelationalMappingContext context;
     private final QueryMappingConfiguration queryMappingConfiguration;
 
-    BeanFactoryRowMapperFactory(@Nullable BeanFactory beanFactory,
-                                JdbcConverter converter,
-                                ApplicationEventPublisher publisher,
-                                @Nullable EntityCallbacks callbacks,
-                                RelationalMappingContext context,
-                                QueryMappingConfiguration queryMappingConfiguration) {
+    QueryFromRowMapperFactory(@Nullable BeanFactory beanFactory,
+                              JdbcConverter converter,
+                              ApplicationEventPublisher publisher,
+                              @Nullable EntityCallbacks callbacks,
+                              RelationalMappingContext context,
+                              QueryMappingConfiguration queryMappingConfiguration) {
         this.beanFactory = beanFactory;
         this.converter = converter;
         this.publisher = publisher;

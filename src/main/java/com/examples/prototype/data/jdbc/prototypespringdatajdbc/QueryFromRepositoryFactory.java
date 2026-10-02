@@ -31,28 +31,32 @@ public class QueryFromRepositoryFactory extends JdbcRepositoryFactory {
     public QueryFromRepositoryFactory(DataAccessStrategy dataAccessStrategy, RelationalMappingContext relationalMappingContext,
                                       JdbcConverter converter, Dialect dialect,
                                       NamedParameterJdbcOperations operations,
-                                      ApplicationContext context) {
+                                      ApplicationContext context,
+                                      BeanFactory beanFactory,
+                                      EntityCallbacks entityCallbacks) {
         super(dataAccessStrategy, relationalMappingContext, converter, dialect, context, operations);
         this.context = context;
         this.operations = operations;
         this.queryMappingConfiguration = QueryMappingConfiguration.EMPTY;
         this.converter = converter;
         this.relationalMappingContext = relationalMappingContext;
+        this.beanFactory = beanFactory;
+        this.callbacks = entityCallbacks;
     }
 
     @Override
     protected Optional<QueryLookupStrategy> getQueryLookupStrategy(QueryLookupStrategy.Key key, ValueExpressionDelegate valueExpressionDelegate) {
-        AbstractJdbcQuery.RowMapperFactory rowMapperFactory = new BeanFactoryRowMapperFactory(this.beanFactory, this.converter,
+        AbstractJdbcQuery.RowMapperFactory rowMapperFactory = new QueryFromRowMapperFactory(this.beanFactory, this.converter,
                 this.context, this.callbacks,
                 this.relationalMappingContext, this.queryMappingConfiguration);
         Optional<QueryLookupStrategy> original = super.getQueryLookupStrategy(key, valueExpressionDelegate);
 
         return Optional.of(new QueryFromLookupStrategy(
                 original,
-                context.getBean(org.springframework.data.mapping.context.MappingContext.class),
-                context.getBean(org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations.class),
+                context.getBean(RelationalMappingContext.class),
+                context.getBean(NamedParameterJdbcOperations.class),
                 rowMapperFactory,
-                context.getBean(org.springframework.data.jdbc.core.convert.JdbcConverter.class),
+                context.getBean(JdbcConverter.class),
                 valueExpressionDelegate));
 
     }
