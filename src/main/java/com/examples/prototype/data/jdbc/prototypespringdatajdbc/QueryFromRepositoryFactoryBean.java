@@ -49,51 +49,38 @@ public class QueryFromRepositoryFactoryBean<T extends Repository<S, ID>, S, ID e
     }
 
     public void setMappingContext(RelationalMappingContext mappingContext) {
-
         Assert.notNull(mappingContext, "MappingContext must not be null");
-
         super.setMappingContext(mappingContext);
         this.mappingContext = mappingContext;
     }
 
     public void setDialect(Dialect dialect) {
-
         Assert.notNull(dialect, "Dialect must not be null");
         super.setDialect(dialect);
         this.dialect = dialect;
     }
 
-    /**
-     * @param dataAccessStrategy can be {@literal null}.
-     */
-    public void setDataAccessStrategy(DataAccessStrategy dataAccessStrategy) {
 
+    public void setDataAccessStrategy(DataAccessStrategy dataAccessStrategy) {
         Assert.notNull(dataAccessStrategy, "DataAccessStrategy must not be null");
         super.setDataAccessStrategy(dataAccessStrategy);
         this.dataAccessStrategy = dataAccessStrategy;
     }
 
-    /**
-     * @param queryMappingConfiguration can be {@literal null}. {@link #afterPropertiesSet()} defaults to
-     *                                  {@link QueryMappingConfiguration#EMPTY} if {@literal null}.
-     */
     @Autowired(required = false)
     public void setQueryMappingConfiguration(QueryMappingConfiguration queryMappingConfiguration) {
-
         Assert.notNull(queryMappingConfiguration, "QueryMappingConfiguration must not be null");
         super.setQueryMappingConfiguration(queryMappingConfiguration);
         this.queryMappingConfiguration = queryMappingConfiguration;
     }
 
     public void setJdbcOperations(NamedParameterJdbcOperations operations) {
-
         Assert.notNull(operations, "NamedParameterJdbcOperations must not be null");
         super.setJdbcOperations(operations);
         this.operations = operations;
     }
 
     public void setConverter(JdbcConverter converter) {
-
         Assert.notNull(converter, "JdbcConverter must not be null");
         super.setConverter(converter);
         this.converter = converter;
@@ -101,14 +88,12 @@ public class QueryFromRepositoryFactoryBean<T extends Repository<S, ID>, S, ID e
 
     @Override
     public void setBeanFactory(BeanFactory beanFactory) {
-
         super.setBeanFactory(beanFactory);
         this.beanFactory = beanFactory;
     }
 
     @Override
     public void afterPropertiesSet() {
-
         Assert.state(this.mappingContext != null, "MappingContext is required and must not be null");
         Assert.state(this.converter != null, "RelationalConverter is required and must not be null");
         this.operations = applicationContext.getBean(NamedParameterJdbcOperations.class);

@@ -7,7 +7,6 @@ import org.springframework.core.io.FileSystemResourceLoader;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.data.jdbc.core.convert.JdbcConverter;
-
 import org.springframework.data.jdbc.repository.query.AbstractJdbcQuery;
 import org.springframework.data.mapping.context.MappingContext;
 import org.springframework.data.projection.ProjectionFactory;
@@ -22,7 +21,9 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
+import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class QueryFromLookupStrategy implements QueryLookupStrategy {
 
@@ -34,6 +35,7 @@ public class QueryFromLookupStrategy implements QueryLookupStrategy {
     private final AbstractJdbcQuery.RowMapperFactory rowMapperFactory;
     private final JdbcConverter converter;
     private final ValueExpressionDelegate delegateExpr;
+    private final Map<String, String> sqlCacheMap = new ConcurrentHashMap<>();
 
 
     public QueryFromLookupStrategy(
@@ -68,7 +70,7 @@ public class QueryFromLookupStrategy implements QueryLookupStrategy {
                 throw new IllegalStateException("@QueryFrom must define 'value' attribute");
             }
 
-            String sql = loadSql(filePath);
+            String sql = sqlCacheMap.computeIfAbsent(filePath, this::loadSql);
             return new FileBasedJdbcQuery(
                     sql,
                     method,
@@ -84,14 +86,14 @@ public class QueryFromLookupStrategy implements QueryLookupStrategy {
         }
 
         return delegate.orElseThrow(() -> new IllegalStateException("No QueryLookupStrategy available for method " + method.getName()))
-                       .resolveQuery(method, metadata, factory, namedQueries);
+                .resolveQuery(method, metadata, factory, namedQueries);
     }
 
     private String loadSql(String path) {
         try {
             Resource resource = loader.getResource(path.startsWith("classpath:")
-                                                           ? path
-                                                           : "classpath:" + path);
+                    ? path
+                    : "classpath:" + path);
 
             return new String(resource.getInputStream().readAllBytes());
         } catch (IOException e) {
